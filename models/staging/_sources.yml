@@ -1,0 +1,15 @@
+version: 2
+
+sources:
+  - name: shop
+    description: >
+      Clean event Parquet written by the PySpark job (pyspark-glue-ingestion), partitioned by
+      event_date. Locally it reads the fixture; point external_location at s3://<clean-bucket>
+      to read production data.
+    meta:
+      external_location: "read_parquet('fixtures/clean/{name}/*/*.parquet', hive_partitioning = true)"
+    tables:
+      - name: events
+        description: One row per event, already deduplicated by event_id.
+      - name: order_items
+        description: One row per order line, exploded from order_completed events.

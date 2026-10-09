@@ -1,0 +1,23 @@
+select
+    event_id,
+    event_name,
+    cast(event_date as date) as event_date,
+    occurred_at,
+    sent_at,
+    received_at,
+    arrival_lag_hours,
+    anonymous_id,
+    customer_id,
+    session_id,
+    source as app_source,
+    product_id,
+    category,
+    price_cents,
+    quantity,
+    cart_value_cents,
+    order_id,
+    total_cents,
+    currency,
+    amount_cents,
+    payment_method
+from {{ source('shop', 'events') }}

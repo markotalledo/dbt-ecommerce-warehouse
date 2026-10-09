@@ -1,0 +1,46 @@
+version: 2
+
+models:
+  - name: fct_orders
+    description: >
+      One row per order. Reconciles the order total against its lines and against the captured
+      payment. reconciliation_status is matched, amount_mismatch or unpaid.
+    columns:
+      - name: order_id
+        tests: [unique, not_null]
+      - name: customer_id
+        tests: [not_null]
+      - name: reconciliation_status
+        tests:
+          - accepted_values:
+              arguments:
+                values: [matched, amount_mismatch, unpaid]
+
+  - name: fct_order_items
+    description: One row per order line, with the product category and the difference against list price.
+    tests:
+      - unique_combination:
+          arguments:
+            columns: [order_id, line_number]
+    columns:
+      - name: order_id
+        tests:
+          - relationships:
+              arguments:
+                to: ref('fct_orders')
+                field: order_id
+
+  - name: dim_customers
+    description: One row per identified customer, with first touch and lifetime value.
+    columns:
+      - name: customer_id
+        tests: [unique, not_null]
+
+  - name: fct_daily_funnel
+    description: >
+      Sessions per day and client, and how many reached each funnel step. Incremental:
+      each run rebuilds the last funnel_lookback_days days.
+    tests:
+      - unique_combination:
+          arguments:
+            columns: [session_date, app_source]

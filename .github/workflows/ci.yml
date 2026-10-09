@@ -1,0 +1,54 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync
+      - run: uv run dbt build --profiles-dir .
+      - run: uv run dbt docs generate --profiles-dir . --static
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dbt-docs
+          path: target/static_index.html
+
+  # Proves the tests have teeth: with a corrupted model the build must fail.
+  tests-catch-injected-bug:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync
+      - name: build with inject_bug must fail
+        run: |
+          if uv run dbt build --profiles-dir . --vars '{inject_bug: true}'; then
+            echo "The injected bug was not caught"; exit 1
+          fi
+
+  pages:
+    if: github.ref == 'refs/heads/main' && github.event.repository.private == false
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dbt-docs
+      - run: mkdir site && mv static_index.html site/index.html
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - id: deploy
+        uses: actions/deploy-pages@v4

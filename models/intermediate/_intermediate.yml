@@ -1,0 +1,12 @@
+version: 2
+
+models:
+  - name: int_sessions
+    description: >
+      One row per session, with funnel flags and the customer resolved across the session.
+      session_date is the date the session started, so sessions that cross midnight are counted once.
+    columns:
+      - name: session_id
+        tests: [unique, not_null]
+      - name: identified_at_checkout
+        description: True when the session started anonymous and the customer logged in at checkout.

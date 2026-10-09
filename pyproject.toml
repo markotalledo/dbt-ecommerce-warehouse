@@ -1,0 +1,6 @@
+[project]
+name = "dbt-ecommerce-warehouse"
+version = "0.1.0"
+description = "dbt project on DuckDB: clean event Parquet modeled into staging, intermediate and marts, with reconciliation tests."
+requires-python = ">=3.12"
+dependencies = ["dbt-core>=1.11,<1.13", "dbt-duckdb>=1.10"]

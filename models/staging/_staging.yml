@@ -1,0 +1,53 @@
+version: 2
+
+models:
+  - name: stg_shop__events
+    description: Typed passthrough of the clean events. One row per event_id.
+    columns:
+      - name: event_id
+        tests: [unique, not_null]
+      - name: event_name
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - session_started
+                  - product_viewed
+                  - product_added_to_cart
+                  - checkout_started
+                  - order_completed
+                  - payment_captured
+      - name: app_source
+        description: Client that sent the event.
+        tests:
+          - accepted_values:
+              arguments:
+                values: [web, ios, android]
+      - name: session_id
+        tests: [not_null]
+      - name: arrival_lag_hours
+        description: Hours between the event happening and reaching the ingestion endpoint. Large values are offline mobile queues.
+
+  - name: stg_shop__order_items
+    description: One row per order line.
+    tests:
+      - unique_combination:
+          arguments:
+            columns: [order_id, line_number]
+    columns:
+      - name: product_id
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_shop__products')
+                field: product_id
+      - name: quantity
+        tests: [not_null]
+
+  - name: stg_shop__products
+    description: Product catalog from the seed.
+    columns:
+      - name: product_id
+        tests: [unique, not_null]

@@ -1,0 +1,37 @@
+name: shop
+version: "0.1.0"
+config-version: 2
+profile: shop
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+test-paths: ["tests"]
+macro-paths: ["macros"]
+
+vars:
+  # Rebuild this many trailing days of the incremental funnel on every run,
+  # so sessions completed by late events get recounted.
+  funnel_lookback_days: 3
+  # Set to true to corrupt order line quantities and watch the tests catch it.
+  inject_bug: false
+
+models:
+  shop:
+    staging:
+      +materialized: view
+      +schema: staging
+    intermediate:
+      +materialized: view
+      +schema: intermediate
+    marts:
+      +materialized: table
+      +schema: marts
+
+seeds:
+  shop:
+    +schema: staging
+    products:
+      +column_types:
+        product_id: varchar
+        category: varchar
+        list_price_cents: bigint
