@@ -4,6 +4,10 @@ A dbt project that models a fictional online coffee shop's events into a small w
 
 It is the third piece of a small end-to-end data platform. It reads the clean Parquet written by [pyspark-glue-ingestion](https://github.com/markotalledo/pyspark-glue-ingestion), which reads what [events-pipeline-aws-terraform](https://github.com/markotalledo/events-pipeline-aws-terraform) lands in S3.
 
+![dbt build passing 35 checks, then the same build with corrupted order lines failing the reconciliation test on all 38 orders](docs/demo.gif)
+
+Recorded from `scripts/demo.sh`, which runs both builds and trims dbt's log to the lines that matter. Re-record with `vhs docs/demo.tape`.
+
 ```mermaid
 flowchart LR
     subgraph staging
